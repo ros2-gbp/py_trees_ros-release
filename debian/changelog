@@ -1,0 +1,236 @@
+ros-rolling-py-trees-ros (2.2.2-1jammy) jammy; urgency=high
+
+  * [pkg] tf2_ros -> tf2_ros_py, #204 <https://github.com/splintered-reality/py_trees_ros/pull/204>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Fri, 10 Feb 2023 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.2.1-1jammy) jammy; urgency=high
+
+  * [behaviours] eliminate more arg name defaults, #201 <https://github.com/splintered-reality/py_trees_ros/pull/201>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Wed, 08 Feb 2023 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.2.0-1jammy) jammy; urgency=high
+
+  * [actions] pre-merge and push-ci-image actions,  #200 <https://github.com/splintered-reality/py_trees_ros/pull/200>
+  * [tests] bugfix explicit args and time float errors in tests,  #200 <https://github.com/splintered-reality/py_trees_ros/pull/200>
+  * [watchers] handle explicit args and memory details,  #196 <https://github.com/splintered-reality/py_trees_ros/pull/196>
+  * [watchers] bugfix blackboard watcher shutdownon humble, #194 <https://github.com/splintered-reality/py_trees_ros/pull/194>
+  * [code] refactor for explicit arguments, #191 <https://github.com/splintered-reality/py_trees_ros/pull/191>
+  * [trees] optional node and node name args to setup, #188 <https://github.com/splintered-reality/py_trees_ros/pull/188>
+  * [trees] switch deprecating qos policy for shorter versions, #187 <https://github.com/splintered-reality/py_trees_ros/pull/187>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Wed, 08 Feb 2023 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.1.1-1jammy) jammy; urgency=high
+
+  * [trees] publish with/without memory information (supports new selector/sequence modes)
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Sun, 09 May 2021 04:00:00 -0000
+
+ros-rolling-py-trees-ros (2.1.0-1jammy) jammy; urgency=high
+
+  * [infra] update for api changes in py_trees 2.1.0 (Chooser no longer supported)
+  * [infra] update for api changes in ros2 foxy (not breaking changes)
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Sun, 02 Aug 2020 04:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.11-1jammy) jammy; urgency=high
+
+  * [blackboards] log a one-shot warning instead of exceptions when pickle fails, #156 <https://github.com/splintered-reality/py_trees_ros/pull/156>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Mon, 23 Mar 2020 04:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.10-1jammy) jammy; urgency=high
+
+  * [mock] server bugfixed to accommodate custom result handlers, #154 <https://github.com/splintered-reality/py_trees_ros/pull/154>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Fri, 06 Mar 2020 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.9-1jammy) jammy; urgency=high
+
+  * [behaviours] default to periodic checks with warnings for action client timeouts, #153 <https://github.com/splintered-reality/py_trees_ros/pull/153>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Thu, 05 Mar 2020 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.8-1jammy) jammy; urgency=high
+
+  * [behaviours] wait_for_server_timeout_sec in action clients, #152 <https://github.com/splintered-reality/py_trees_ros/pull/152>
+  * [trees] avoid irregular snapshot streams by avoiding timing jitter, #151 <https://github.com/splintered-reality/py_trees_ros/pull/151>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Wed, 04 Mar 2020 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.7-1jammy) jammy; urgency=high
+
+  * [programs] graph discovery timeouts 1.0->2.0s, #149 <https://github.com/splintered-reality/py_trees_ros/pull/149>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Mon, 10 Feb 2020 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.6-1jammy) jammy; urgency=high
+
+  * [behaviours] action client goals from blackboard behaviour, #148 <https://github.com/splintered-reality/py_trees_ros/pull/148>
+  * [behaviours] publish from blackboard behaviour, #146 <https://github.com/splintered-reality/py_trees_ros/pull/146>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Thu, 06 Feb 2020 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.5-1jammy) jammy; urgency=high
+
+  * [serialisation] include parallel policy details
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Fri, 24 Jan 2020 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.4-1jammy) jammy; urgency=high
+
+  * [blackboard] bugfix protection against activity stream not activitated for views, #140 <https://github.com/splintered-reality/py_trees_ros/pull/140>
+  * [trees] bugfix toggle for activity client on reconfigure, #139 <https://github.com/splintered-reality/py_trees_ros/pull/139>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Mon, 30 Dec 2019 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.3-1jammy) jammy; urgency=high
+
+  * [infra] add a marker file to assist with ros2cli discovery #138 <https://github.com/splintered-reality/py_trees_ros/pull/138>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Thu, 26 Dec 2019 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.2-1jammy) jammy; urgency=high
+
+  * [trees] on-demand snapshot stream services, similar to blackboard streams, #135 <https://github.com/splintered-reality/py_trees_ros/pull/135>, #136 <https://github.com/splintered-reality/py_trees_ros/pull/136>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Thu, 26 Dec 2019 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.1-1jammy) jammy; urgency=high
+
+  * [trees] periodically publish snapshots, #131 <https://github.com/splintered-reality/py_trees_ros/pull/131>,
+  * [trees] permit setup visitors, provide a default with timings, #129 <https://github.com/splintered-reality/py_trees_ros/pull/129>
+  * [trees] bugfix non-infinite timeout arg getting ignored, #129 <https://github.com/splintered-reality/py_trees_ros/pull/129>
+  * [trees] snapshot now publishing tree changed flag and key access info, #128 <https://github.com/splintered-reality/py_trees_ros/pull/128>
+  * [utilities] deprecate myargv for rclpy.utilities.remove_ros_args, #130 <https://github.com/splintered-reality/py_trees_ros/pull/130>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Tue, 03 Dec 2019 05:00:00 -0000
+
+ros-rolling-py-trees-ros (2.0.0-1jammy) jammy; urgency=high
+
+  * [blackboards] updated pretty printing to differentiate namespace vs attribute access, #123 <https://github.com/splintered-reality/py_trees_ros/pull/123>
+  * [blackboards] api updates for namespaced clients, #122 <https://github.com/splintered-reality/py_trees_ros/pull/122>,
+  * [tests] migrated tests from unittest to pytest
+  * [transforms] behaviours for writing to and broadcasting from the blackboard, #121 <https://github.com/splintered-reality/py_trees_ros/pull/121>
+  * [transforms] add missing mocks and update to latest blackboard api, #125 <https://github.com/splintered-reality/py_trees_ros/pull/125>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Wed, 20 Nov 2019 05:00:00 -0000
+
+ros-rolling-py-trees-ros (1.2.1-1jammy) jammy; urgency=high
+
+  * [trees] bugfix KeyError on publication of missing keys, #118 <https://github.com/splintered-reality/py_trees_ros/pull/118>
+  * [utilities] a ros myargv stipper, a'la ROS1 style, until something is available upstream
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Tue, 08 Oct 2019 04:00:00 -0000
+
+ros-rolling-py-trees-ros (1.2.0-1jammy) jammy; urgency=high
+
+  * [blackboards] sweeping changes to accomodate the new blackboards with tracking, #109 <https://github.com/splintered-reality/py_trees_ros/pull/109>
+  * [backend] ensure tree modifications are published with an updated timestamp, #100 <https://github.com/splintered-reality/py_trees_ros/pull/100>
+  * [behaviours] subscriber related behaviours now *require* qos_profile args, #104 <https://github.com/splintered-reality/py_trees_ros/pull/104>
+  * [trees] ros parameterisation of the setup timeout, #101 <https://github.com/splintered-reality/py_trees_ros/pull/101>
+  * [trees] make use of the new DisplaySnapshotVisitor, #102 <https://github.com/splintered-reality/py_trees_ros/pull/102>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Wed, 02 Oct 2019 04:00:00 -0000
+
+ros-rolling-py-trees-ros (1.1.2-1jammy) jammy; urgency=high
+
+  * [utilities] permit discovery of multiples with find_topics, #97 <https://github.com/splintered-reality/py_trees_ros/pull/97>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Sat, 10 Aug 2019 04:00:00 -0000
+
+ros-rolling-py-trees-ros (1.1.1-1jammy) jammy; urgency=high
+
+  * [tests] add missing tests/__init.py,  #94 <https://github.com/splintered-reality/py_trees_ros/pull/94>
+  * [infra] add missing ros2topic dependency,  #94 <https://github.com/splintered-reality/py_trees_ros/pull/94>
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Sat, 22 Jun 2019 04:00:00 -0000
+
+ros-rolling-py-trees-ros (1.1.0-1jammy) jammy; urgency=high
+
+  * [actions] bugfix action client, don't cancel if not RUNNING
+  * [conversions] bugfix msg_to_behaviour for decorators
+  * [watchers] bugfix tree-watchers dot-graph to string functionality
+  * [watchers] bugfix missing tip in deserialised tree-watcher tree
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Wed, 19 Jun 2019 04:00:00 -0000
+
+ros-rolling-py-trees-ros (1.0.0-1jammy) jammy; urgency=high
+
+  Stripped down and rebuilt for ROS2:
+  * [behaviours] the familiar subscriber and action client behaviours
+  * [blackboard] the exchange, mostly unmodified
+  * [infra] colcon build environment
+  * [trees] simpler communications, just one serialised tree snapshot, watchers do the rest
+  * [watchers] revamped 'blackboard' and new 'tree' watcher
+  What's missing:
+  * [logging] the basic mechanisms have moved to py_trees, the rosbag implementation is to come
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Sun, 28 Apr 2019 04:00:00 -0000
+
+ros-rolling-py-trees-ros (0.5.13-1jammy) jammy; urgency=high
+
+  * [doc] add many missing packages to satiate autodoc
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Sun, 28 May 2017 04:00:00 -0000
+
+ros-rolling-py-trees-ros (0.5.9-1jammy) jammy; urgency=high
+
+  * [doc] add missing rqt-py-trees image
+  * [infra] bugfix missing install rule for mock sensors script
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Sun, 16 Apr 2017 04:00:00 -0000
+
+ros-rolling-py-trees-ros (0.5.5-1jammy) jammy; urgency=high
+
+  * [infra] missed the py_trees exec dependency, fixed.
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Fri, 31 Mar 2017 04:00:00 -0000
+
+ros-rolling-py-trees-ros (0.5.4-1jammy) jammy; urgency=high
+
+  * [docs] faq added
+  * [tutorials] 9 - bagging
+  * [infra] various dependency fixes for tests and autodoc
+  * [tests] fix broken subscrirber test
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Sat, 25 Mar 2017 04:00:00 -0000
+
+ros-rolling-py-trees-ros (0.5.3-1jammy) jammy; urgency=high
+
+  * [tutorials] 8 - dynamic loading, insertion and execution
+  * [tutorials] 7 - docking, undocking, cancelling and recovery
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Tue, 21 Mar 2017 04:00:00 -0000
+
+ros-rolling-py-trees-ros (0.5.2-1jammy) jammy; urgency=high
+
+  * [infra] add missing actionlib dependencies
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Sun, 19 Mar 2017 04:00:00 -0000
+
+ros-rolling-py-trees-ros (0.5.1-1jammy) jammy; urgency=high
+
+  * [tutorials] 6 - context switching
+  * [tutorials] re-insert missing images
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Sun, 19 Mar 2017 04:00:00 -0000
+
+ros-rolling-py-trees-ros (0.5.0-1jammy) jammy; urgency=high
+
+  * [docs] new and shiny index added
+  * [tutorials] qt dashboard support
+  * [tutorials] 5 - tree scanning added
+  * [tutorials] 4 - tree introspection added
+  * [tutorials] 3 - blackboards added
+  * [tutorials] 2 - battery low branch added
+  * [tutorials] 1 - data gathering added
+  * [mock] a mock robot for tutorials and testing
+  * [behaviours] action client, battery behaviours added
+  * [infra] refactoring for kinetic
+
+ -- Daniel Stonier <d.stonier@gmail.com>  Tue, 21 Feb 2017 05:00:00 -0000
+
+
