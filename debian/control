@@ -1,0 +1,12 @@
+Source: ros-jazzy-py-trees-ros
+Section: misc
+Priority: optional
+Maintainer: Daniel Stonier <d.stonier@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), python3-pytest <!nocheck>, python3-setuptools, ros-jazzy-geometry-msgs, ros-jazzy-py-trees, ros-jazzy-py-trees-ros-interfaces, ros-jazzy-rcl-interfaces, ros-jazzy-rclpy, ros-jazzy-ros2topic, ros-jazzy-sensor-msgs, ros-jazzy-std-msgs, ros-jazzy-tf2-ros-py, ros-jazzy-unique-identifier-msgs, ros-jazzy-ros-workspace, python3-all, python3-setuptools, dh-python
+Homepage: https://py-trees-ros.readthedocs.io/en/release-1.2.x/
+Standards-Version: 3.9.2
+
+Package: ros-jazzy-py-trees-ros
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}, ros-jazzy-geometry-msgs, ros-jazzy-py-trees, ros-jazzy-py-trees-ros-interfaces, ros-jazzy-rcl-interfaces, ros-jazzy-rclpy, ros-jazzy-ros2topic, ros-jazzy-sensor-msgs, ros-jazzy-std-msgs, ros-jazzy-tf2-ros-py, ros-jazzy-unique-identifier-msgs, ros-jazzy-ros-workspace
+Description: ROS2 extensions and behaviours for py_trees.
