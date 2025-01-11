@@ -98,8 +98,8 @@ tracks:
     patches: null
     release_inc: '3'
     release_repo_url: null
-    release_tag: :{version}
+    release_tag: 2.3.0
     ros_distro: rolling
     vcs_type: git
     vcs_uri: https://github.com/splintered-reality/py_trees_ros
-    version: :{auto}
+    version: 2.3.0
