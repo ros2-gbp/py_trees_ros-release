@@ -7,7 +7,7 @@ package_name = 'py_trees_ros'
 
 setup(
     name=package_name,
-    version='2.2.2',  # also package.xml, doc/conf.py, py_trees_ros/version.py
+    version='2.3.0',  # also package.xml, doc/conf.py, py_trees_ros/version.py
     packages=find_packages(
         exclude=['doc*', 'tests*', 'graveyard*', 'scripts*']
     ),
@@ -20,7 +20,7 @@ setup(
     install_requires=[],
     extras_require={},
     author='Daniel Stonier, Naveed Usmani, Michal Staniaszek',
-    maintainer='Daniel Stonier <d.stonier@gmail.com>',
+    maintainer='Daniel Stonier <d.stonier@gmail.com>, Sebastian Castro <sebas.a.castro@gmail.com>',
     url='https://github.com/splintered-reality/py_trees_ros',
     keywords=['ROS', 'behaviour-trees'],
     zip_safe=True,
