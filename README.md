@@ -1,3 +1,26 @@
+## py_trees_ros (jazzy) - 2.3.0-1
+
+The packages in the `py_trees_ros` repository were released into the `jazzy` distro by running `/usr/bin/bloom-release --edit --rosdistro jazzy py_trees_ros` on `Sat, 11 Jan 2025 23:15:58 -0000`
+
+The `py_trees_ros` package was released.
+
+Version of package(s) in repository `py_trees_ros`:
+
+- upstream repository: https://github.com/splintered-reality/py_trees_ros
+- release repository: https://github.com/ros2-gbp/py_trees_ros-release.git
+- rosdistro version: `2.2.2-4`
+- old version: `2.2.2-4`
+- new version: `2.3.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.12.0`
+- catkin_pkg version: `1.0.0`
+- rosdep version: `0.25.1`
+- rosdistro version: `1.0.1`
+- vcstools version: `0.1.42`
+
+
 ## py_trees_ros (humble) - 2.3.0-1
 
 The packages in the `py_trees_ros` repository were released into the `humble` distro by running `/usr/bin/bloom-release --edit --rosdistro humble py_trees_ros` on `Sat, 11 Jan 2025 23:02:54 -0000`
