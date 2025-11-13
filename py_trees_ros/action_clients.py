@@ -7,7 +7,6 @@
 ##############################################################################
 # Documentation
 ##############################################################################
-from asyncio.tasks import wait_for
 
 """
 Behaviours for ROS actions.
@@ -19,10 +18,12 @@ Behaviours for ROS actions.
 
 import typing
 import uuid
+from abc import ABC, abstractmethod
 
 import action_msgs.msg as action_msgs  # GoalStatus
 import py_trees
 import rclpy.action
+import rclpy.callback_groups
 
 from . import exceptions
 
@@ -74,7 +75,7 @@ class FromBlackboard(py_trees.behaviour.Behaviour):
             action_type=py_trees_actions.Dock,
             action_name="dock",
             name="ActionClient",
-            generate_message=lambda msg: "{:.2f}%%".format(msg.feedback.percentage_completed)
+            generate_feedback_message=lambda msg: "{:.2f}%%".format(msg.feedback.percentage_completed)
         )
 
     Args:
@@ -85,6 +86,7 @@ class FromBlackboard(py_trees.behaviour.Behaviour):
         generate_feedback_message: formatter for feedback messages, takes action_type.Feedback
             messages and returns strings (default: None)
         wait_for_server_timeout_sec: use negative values for a blocking but periodic check (default: -3.0)
+        callback_group: callback group for the action client
 
     .. note::
        The default setting for timeouts (a negative value) will suit
@@ -97,13 +99,16 @@ class FromBlackboard(py_trees.behaviour.Behaviour):
                  action_type: typing.Any,
                  action_name: str,
                  key: str,
-                 generate_feedback_message: typing.Callable[[typing.Any], str]=None,
-                 wait_for_server_timeout_sec: float=-3.0
+                 generate_feedback_message: typing.Callable[[typing.Any], str] = None,
+                 wait_for_server_timeout_sec: float = -3.0,
+                 callback_group: typing.Optional[rclpy.callback_groups.CallbackGroup] = None,
                  ):
         super().__init__(name)
         self.action_type = action_type
         self.action_name = action_name
         self.wait_for_server_timeout_sec = wait_for_server_timeout_sec
+        self.callback_group = callback_group
+
         self.blackboard = self.attach_blackboard_client(name=self.name)
         self.blackboard.register_key(
             key="goal",
@@ -148,7 +153,8 @@ class FromBlackboard(py_trees.behaviour.Behaviour):
         self.action_client = rclpy.action.ActionClient(
             node=self.node,
             action_type=self.action_type,
-            action_name=self.action_name
+            action_name=self.action_name,
+            callback_group=self.callback_group,
         )
         result = None
         if self.wait_for_server_timeout_sec > 0.0:
@@ -195,8 +201,13 @@ class FromBlackboard(py_trees.behaviour.Behaviour):
         try:
             self.send_goal_request(self.blackboard.goal)
             self.feedback_message = "sent goal request"
-        except KeyError:
-            pass  # self.send_goal_future will be None, check on that
+        except TypeError:
+            expected_type = self.action_type.Goal.__name__
+            received_type = type(self.blackboard.goal).__name__
+            self.logger.error(f"Received a goal of type <{received_type}> instead of <{expected_type}>")
+        except KeyError as e:
+            self.logger.error(f"{e}")
+        # self.send_goal_future will be None on either exception, and update will return FAILURE
 
     def update(self):
         """
@@ -216,7 +227,7 @@ class FromBlackboard(py_trees.behaviour.Behaviour):
             # goal was rejected
             self.feedback_message = "goal rejected"
             return py_trees.common.Status.FAILURE
-        if self.result_status is None:
+        if self.result_status is None or self.get_result_future is None:
             return py_trees.common.Status.RUNNING
         elif not self.get_result_future.done():
             # should never get here
@@ -379,6 +390,7 @@ class FromConstant(FromBlackboard):
         generate_feedback_message: formatter for feedback messages, takes action_type.Feedback
             messages and returns strings (default: None)
         wait_for_server_timeout_sec: use negative values for a blocking but periodic check (default: -3.0)
+        callback_group: callback group for the action client
 
     .. note::
        The default setting for timeouts (a negative value) will suit
@@ -391,8 +403,9 @@ class FromConstant(FromBlackboard):
                  action_type: typing.Any,
                  action_name: str,
                  action_goal: typing.Any,
-                 generate_feedback_message: typing.Callable[[typing.Any], str]=None,
-                 wait_for_server_timeout_sec: float=-3.0
+                 generate_feedback_message: typing.Callable[[typing.Any], str] = None,
+                 wait_for_server_timeout_sec: float = -3.0,
+                 callback_group: typing.Optional[rclpy.callback_groups.CallbackGroup] = None,
                  ):
         unique_id = uuid.uuid4()
         key = "/goal_" + str(unique_id)
@@ -402,7 +415,8 @@ class FromConstant(FromBlackboard):
             key=key,
             name=name,
             generate_feedback_message=generate_feedback_message,
-            wait_for_server_timeout_sec=wait_for_server_timeout_sec
+            wait_for_server_timeout_sec=wait_for_server_timeout_sec,
+            callback_group=callback_group,
         )
         # parent already instantiated a blackboard client
         self.blackboard.register_key(
@@ -410,3 +424,132 @@ class FromConstant(FromBlackboard):
             access=py_trees.common.Access.WRITE,
         )
         self.blackboard.set(name=key, value=action_goal)
+
+
+class AttributesFromBlackboard(FromBlackboard):
+    """
+    Convenience version of the action client that creates a goal with fields read from the blackboard.
+
+    .. see-also: :class:`py_trees_ros.action_clients.FromBlackboard`
+
+    Args:
+        name: name of the behaviour
+        action_type: spec type for the action (e.g. move_base_msgs.action.MoveBase)
+        action_name: where you can find the action topics & services (e.g. "bob/move_base")
+        goal_fields: dictionary containing pairs {goal field: blackboard key} that will be used to construct the goal
+        generate_feedback_message: formatter for feedback messages, takes action_type.Feedback
+            messages and returns strings (default: None)
+        wait_for_server_timeout_sec: use negative values for a blocking but periodic check (default: -3.0)
+        callback_group: callback group for the action client
+
+    .. note::
+       The default setting for timeouts (a negative value) will suit
+       most use cases. With this setting the behaviour will periodically check and
+       issue a warning if the server can't be found. Actually aborting the setup can
+       usually be left up to the behaviour tree manager.
+    """
+
+    def __init__(self,
+                 name: str,
+                 action_type: typing.Any,
+                 action_name: str,
+                 goal_fields: dict[str, typing.Any],
+                 generate_feedback_message: typing.Callable[[typing.Any], str] = None,
+                 wait_for_server_timeout_sec: float = -3.0,
+                 callback_group: typing.Optional[rclpy.callback_groups.CallbackGroup] = None,
+                 ):
+        unique_id = uuid.uuid4()
+        self.key = "/goal_" + str(unique_id)
+        super().__init__(
+            action_type=action_type,
+            action_name=action_name,
+            key=self.key,
+            name=name,
+            generate_feedback_message=generate_feedback_message,
+            wait_for_server_timeout_sec=wait_for_server_timeout_sec,
+            callback_group=callback_group,
+        )
+        # The parent constructor already instantiated a blackboard client
+        # Here we register the keys from which we will read the goal attributes and a key to store the goal itself
+        self.goal_fields = goal_fields
+        for bb_key in self.goal_fields.values():
+            self.blackboard.register_key(
+                key=bb_key,
+                access=py_trees.common.Access.READ,
+            )
+        self.blackboard.register_key(
+            key=self.key,
+            access=py_trees.common.Access.WRITE,
+        )
+
+    def initialise(self):
+        """
+        Read from the blackboard the attributes to create a goal object; if succeeded, write it to the blackboard.
+        """
+        self.logger.debug("%s.initialise()" % self.__class__.__name__)
+        goal_attributes = {goal_attr: self.blackboard.get(bb_key) for goal_attr, bb_key in self.goal_fields.items()}
+        goal = self.action_type.Goal(**goal_attributes)
+        self.blackboard.set(name=self.key, value=goal)
+
+        super().initialise()
+
+
+class FromCallback(FromBlackboard, ABC):
+    """
+    Convenience version of the action client that obtains the goal from a callback implemented by derived classes.
+
+    .. see-also: :class:`py_trees_ros.action_clients.FromBlackboard`
+
+    Args:
+        name: name of the behaviour
+        action_type: spec type for the action (e.g. move_base_msgs.action.MoveBase)
+        action_name: where you can find the action topics & services (e.g. "bob/move_base")
+        generate_feedback_message: formatter for feedback messages, takes action_type.Feedback
+            messages and returns strings (default: None)
+        wait_for_server_timeout_sec: use negative values for a blocking but periodic check (default: -3.0)
+        callback_group: callback group for the action client
+
+    .. note::
+       The default setting for timeouts (a negative value) will suit
+       most use cases. With this setting the behaviour will periodically check and
+       issue a warning if the server can't be found. Actually aborting the setup can
+       usually be left up to the behaviour tree manager.
+    """
+
+    def __init__(self,
+                 name: str,
+                 action_type: typing.Any,
+                 action_name: str,
+                 generate_feedback_message: typing.Callable[[typing.Any], str] = None,
+                 wait_for_server_timeout_sec: float = -3.0,
+                 callback_group: typing.Optional[rclpy.callback_groups.CallbackGroup] = None,
+                 ):
+        unique_id = uuid.uuid4()
+        self.key = "/goal_" + str(unique_id)
+        super().__init__(
+            action_type=action_type,
+            action_name=action_name,
+            key=self.key,
+            name=name,
+            generate_feedback_message=generate_feedback_message,
+            wait_for_server_timeout_sec=wait_for_server_timeout_sec,
+            callback_group=callback_group,
+        )
+        # The parent constructor already instantiated a blackboard client
+        self.blackboard.register_key(
+            key=self.key,
+            access=py_trees.common.Access.WRITE,
+        )
+
+    def initialise(self):
+        """
+        Call derived class `get_goal` method and write the returned action goal to the blackboard.
+        """
+        self.logger.debug("%s.initialise()" % self.__class__.__name__)
+        self.blackboard.set(name=self.key, value=self.get_goal())
+
+        super().initialise()
+
+    @abstractmethod
+    def get_goal(self):
+        pass
