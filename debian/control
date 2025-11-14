@@ -1,0 +1,12 @@
+Source: ros-kilted-py-trees-ros
+Section: misc
+Priority: optional
+Maintainer: Daniel Stonier <d.stonier@gmail.com>
+Build-Depends: debhelper (>= 9.0.0), python3-pytest <!nocheck>, python3-setuptools, ros-kilted-geometry-msgs, ros-kilted-py-trees, ros-kilted-py-trees-ros-interfaces, ros-kilted-rcl-interfaces, ros-kilted-rclpy, ros-kilted-ros2topic, ros-kilted-sensor-msgs, ros-kilted-std-msgs, ros-kilted-std-srvs, ros-kilted-tf2-ros-py, ros-kilted-unique-identifier-msgs, ros-kilted-ros-workspace, python3-all, python3-setuptools, dh-python
+Homepage: https://py-trees-ros.readthedocs.io/en/release-1.2.x/
+Standards-Version: 3.9.2
+
+Package: ros-kilted-py-trees-ros
+Architecture: any
+Depends: ${python3:Depends}, ${misc:Depends}, ros-kilted-geometry-msgs, ros-kilted-py-trees, ros-kilted-py-trees-ros-interfaces, ros-kilted-rcl-interfaces, ros-kilted-rclpy, ros-kilted-ros2topic, ros-kilted-sensor-msgs, ros-kilted-std-msgs, ros-kilted-std-srvs, ros-kilted-tf2-ros-py, ros-kilted-unique-identifier-msgs, ros-kilted-ros-workspace
+Description: ROS2 extensions and behaviours for py_trees.
