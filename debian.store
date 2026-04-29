@@ -1,1 +1,1 @@
-{"base": "b2bd489ce30b", "parent": "debian/rolling/py_trees_ros", "previous": "d837b7e64117", "trim": "", "trimbase": ""}
+{"base": "7435f11", "parent": "debian/lyrical/py_trees_ros", "previous": "c2f9704", "trim": "", "trimbase": ""}
