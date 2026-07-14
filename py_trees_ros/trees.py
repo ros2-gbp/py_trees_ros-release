@@ -20,6 +20,8 @@ Interact with these services via the :ref:`py-trees-blackboard-watcher` and
 # Imports
 ##############################################################################
 
+from __future__ import annotations
+
 import collections
 import enum
 import functools
@@ -274,23 +276,87 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         self.snapshot_streams = {}
 
     def setup(
-            self,
-            node: typing.Optional[rclpy.node.Node] = None,
-            node_name: str = "tree",
-            timeout: float = py_trees.common.Duration.INFINITE,
-            visitor: py_trees.visitors.VisitorBase | None = None,
-            **kwargs: int
+        self,
+        node: rclpy.node.Node | None = None,
+        node_name: str = "tree",
+        timeout: float = py_trees.common.Duration.INFINITE,
+        visitor: py_trees.visitors.VisitorBase | None = None,
+        **kwargs: int
     ):
         """
         Setup the publishers, exchange and add ROS relevant pre/post tick handlers to the tree.
         Ultimately relays this call down to all the behaviours in the tree.
 
+        If this method is called subsequent times for the same tree, then it assumes the node
+        and all relevant publishers etc. are already set up, in which case only the ``setup()``
+        methods of the tree's nodes are called.
+
         Args:
             node: Optional ROS Node object. If None (default), creates its own node.
             node_name: Name of ROS node created. Only takes effect if `node` is None.
             timeout: time (s) to wait (use common.Duration.INFINITE to block indefinitely)
-            visitor: runnable entities on each node after it's setup
-            **kwargs: distribute args to this behaviour and in turn, to it's children
+            visitor: runnable entities on each node after setup
+            **kwargs: distribute args to this behaviour and in turn, to its children
+
+        Raises:
+            rclpy.exceptions.NotInitializedException: rclpy not yet initialised
+            TypeError: node argument is not a valid rclpy.node.Node object
+            Exception: be ready to catch if any of the behaviours raise an exception
+        """
+        if self.node is None:
+            if node:
+                # Use existing node if one is passed in, and is of the correct type.
+                if isinstance(node, rclpy.node.Node):
+                    self.node = node
+                else:
+                    raise TypeError(f"invalid node object [received: {type(node)}][expected: rclpy.node.Node]")
+            else:
+                # Node creation - can raise rclpy.exceptions.NotInitializedException
+                self.node = rclpy.create_node(node_name=node_name)
+
+            self._setup_ros_exchange(timeout, visitor)
+
+        # Get the resulting timeout
+        setup_timeout = self.node.get_parameter("setup_timeout").value
+        # Ugly workaround to accomodate use of the enum (TODO: rewind this)
+        #   Need to pass the enum for now (instead of just a float) in case
+        #   there are behaviours out in the wild that apply logic around the
+        #   use of the enum
+        if setup_timeout == py_trees.common.Duration.INFINITE.value:
+            setup_timeout = py_trees.common.Duration.INFINITE
+
+        ########################################
+        # Behaviours
+        ########################################
+        try:
+            super().setup(
+                timeout=setup_timeout,
+                visitor=visitor,
+                node=self.node,
+                **kwargs
+            )
+        except RuntimeError as e:
+            if str(e) == "tree setup interrupted or timed out":
+                raise exceptions.TimedOutError(str(e))
+            else:
+                raise
+
+        # Unconditionally publish a snapshot - setup() is typically (re)run
+        # after modifications to the tree and those modifications may have
+        # occurred without accompanying notifications,
+        self._on_tree_update_handler()
+
+    def _setup_ros_exchange(
+        self,
+        timeout: float = py_trees.common.Duration.INFINITE,
+        visitor: py_trees.visitors.VisitorBase | None = None,
+    ):
+        """
+        Setup the publishers, exchange and add ROS relevant pre/post tick handlers to the tree.
+
+        Args:
+            timeout: time (s) to wait (use common.Duration.INFINITE to block indefinitely)
+            visitor: runnable entities on each node after setup
 
         .. note:
 
@@ -302,18 +368,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         Raises:
             rclpy.exceptions.NotInitializedException: rclpy not yet initialised
             TypeError: node argument is not a valid rclpy.node.Node object
-            Exception: be ready to catch if any of the behaviours raise an exception
         """
-        # node creation - can raise rclpy.exceptions.NotInitializedException
-        if node:
-            # Use existing node if one is passed in, and is of the correct type.
-            if isinstance(node, rclpy.node.Node):
-                self.node = node
-            else:
-                raise TypeError(f"invalid node object [received: {type(node)}][expected: rclpy.node.Node]")
-        else:
-            # Node creation - can raise rclpy.exceptions.NotInitializedException
-            self.node = rclpy.create_node(node_name=node_name)
         if visitor is None:
             visitor = visitors.SetupLogger(node=self.node)
         self.default_snapshot_stream_topic_name = SnapshotStream.expand_topic_name(
@@ -423,30 +478,6 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
                     to_value=py_trees.common.Duration.INFINITE.value)]
             )
         )
-        # Get the resulting timeout
-        setup_timeout = self.node.get_parameter("setup_timeout").value
-        # Ugly workaround to accomodate use of the enum (TODO: rewind this)
-        #   Need to pass the enum for now (instead of just a float) in case
-        #   there are behaviours out in the wild that apply logic around the
-        #   use of the enum
-        if setup_timeout == py_trees.common.Duration.INFINITE.value:
-            setup_timeout = py_trees.common.Duration.INFINITE
-
-        ########################################
-        # Behaviours
-        ########################################
-        try:
-            super().setup(
-                timeout=setup_timeout,
-                visitor=visitor,
-                node=self.node,
-                **kwargs
-            )
-        except RuntimeError as e:
-            if str(e) == "tree setup interrupted or timed out":
-                raise exceptions.TimedOutError(str(e))
-            else:
-                raise
 
         ########################################
         # Setup Handlers
@@ -456,6 +487,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         # to the callback function here.
         self.tree_update_handler = self._on_tree_update_handler
         self.post_tick_handlers.append(self._snapshots_post_tick_handler)
+
 
     def _set_parameters_callback(
         self,
@@ -540,9 +572,14 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         )
         self.tick_tock_count = 0
 
-    def shutdown(self):
+    def shutdown(self, destroy_node: bool = True):
         """
-        Cleanly shut down rclpy timers and nodes.
+        Cleanly shut down rclpy timers and (optionally) nodes.
+
+        Args:
+            destroy_node (:obj:`bool`): if True (default), destroys the underlying ROS node.
+                If False, keeps the node alive, which can be useful if you plan to setup the tree again,
+                or if the node is otherwise externally managed.
         """
         # stop ticking if we're ticking
         if self.node is not None:
@@ -552,7 +589,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         # call shutdown on each behaviour first, in case it has
         # some esoteric shutdown steps
         super().shutdown()
-        if self.node is not None:
+        if destroy_node and self.node is not None:
             # shutdown the node - this *should* automagically clean
             # up any non-esoteric shutdown of ros communications
             # inside behaviours
@@ -583,18 +620,22 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         Whenever there has been a modification to the tree (insertion/pruning), publish
         the snapshot.
         """
-        # only worth notifying once we've actually commenced
-        if self.statistics is not None:
-            rclpy_start_time = rclpy.clock.Clock().now()
-            self.statistics.stamp = rclpy_start_time.to_msg()
-            for unused_topic_name, snapshot_stream in self.snapshot_streams.items():
-                snapshot_stream.publish(
-                    root=self.root,
-                    changed=True,
-                    statistics=self.statistics,
-                    visited_behaviour_ids=self.snapshot_visitor.visited.keys(),
-                    visited_blackboard_client_ids=self.snapshot_visitor.visited_blackboard_client_ids
-                )
+        if self.statistics is None:
+            # not ticking yet - fabricate a stamped statistics object so that
+            # modifications between setup() and the first tick still notify
+            # any connected snapshot streams (it is replaced on the next tick)
+            self.statistics = py_trees_msgs.Statistics()
+
+        rclpy_start_time = rclpy.clock.Clock().now()
+        self.statistics.stamp = rclpy_start_time.to_msg()
+        for _, snapshot_stream in self.snapshot_streams.items():
+            snapshot_stream.publish(
+                root=self.root,
+                changed=True,
+                statistics=self.statistics,
+                visited_behaviour_ids=self.snapshot_visitor.visited.keys(),
+                visited_blackboard_client_ids=self.snapshot_visitor.visited_blackboard_client_ids
+            )
 
     def _statistics_pre_tick_handler(self, tree: py_trees.trees.BehaviourTree):
         """
@@ -653,7 +694,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
     def _snapshots_post_tick_handler(self, tree: py_trees.trees.BehaviourTree):
         """
         Post-tick handler that checks for changes in the tree/blackboard as a result
-        of it's last tick and publish updates on ROS topics.
+        of its last tick and publish updates on ROS topics.
 
         Args:
             tree (:class:`~py_trees.trees.BehaviourTree`): the behaviour tree that has just been ticked
@@ -760,7 +801,7 @@ class Watcher(object):
     """
     The tree watcher sits on the other side of a running
     :class:`~py_trees_ros.trees.BehaviourTree` and is a useful mechanism for
-    quick introspection of it's current state.
+    quick introspection of its current state.
 
     Args:
         topic_name: location of the snapshot stream (optional)
