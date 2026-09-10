@@ -7,7 +7,7 @@ package_name = 'py_trees_ros'
 
 setup(
     name=package_name,
-    version='2.5.0',  # also package.xml, doc/conf.py, py_trees_ros/version.py
+    version='2.6.0',  # also package.xml, doc/conf.py, py_trees_ros/version.py
     packages=find_packages(
         exclude=['doc*', 'tests*', 'graveyard*', 'scripts*']
     ),
@@ -26,7 +26,6 @@ setup(
     zip_safe=True,
     classifiers=[
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Topic :: Software Development :: Libraries'
@@ -41,9 +40,7 @@ setup(
         "manager with ROS communication handles for debugging and"
         "visualisation, logging and various tutorials."
     ),
-    license='BSD',
-    test_suite='tests',
-    tests_require=[],  # using vanilla py unit tests
+    license='BSD-3-Clause',
     entry_points={
         'console_scripts': [
             'py-trees-blackboard-watcher = py_trees_ros.programs.blackboard_watcher:main',
