@@ -1,3 +1,26 @@
+## py_trees_ros (rolling) - 2.6.0-1
+
+The packages in the `py_trees_ros` repository were released into the `rolling` distro by running `/usr/bin/bloom-release --rosdistro rolling -e py_trees_ros` on `Thu, 10 Sep 2026 21:47:46 -0000`
+
+The `py_trees_ros` package was released.
+
+Version of package(s) in repository `py_trees_ros`:
+
+- upstream repository: https://github.com/splintered-reality/py_trees_ros
+- release repository: https://github.com/ros2-gbp/py_trees_ros-release.git
+- rosdistro version: `2.5.0-1`
+- old version: `2.5.0-1`
+- new version: `2.6.0-1`
+
+Versions of tools used:
+
+- bloom version: `0.14.3`
+- catkin_pkg version: `1.1.0`
+- rosdep version: `0.26.0`
+- rosdistro version: `1.1.0`
+- vcstools version: `0.1.42`
+
+
 ## py_trees_ros (lyrical) - 2.6.0-1
 
 The packages in the `py_trees_ros` repository were released into the `lyrical` distro by running `/usr/bin/bloom-release --rosdistro lyrical -e py_trees_ros` on `Thu, 10 Sep 2026 21:46:20 -0000`
